@@ -1,0 +1,5 @@
+#ifndef COLORIZE_UTILS_H
+#define COLORIZE_UTILS_H
+
+
+#endif // !COLORIZE_UTILS_H
