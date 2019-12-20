@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-19 11:02:27
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2019-12-20 08:16:42
+ * @LastEditTime : 2019-12-20 08:48:47
  * @Description: This header is used to deal with image files.
  */
 #ifndef COLORIZE_IMAGE_HANDLER
@@ -222,7 +222,6 @@ int LabImage::remap_histogram(LabImage& target, const CHANNEL& channel)
             set_pixel(w, h, channel, pixel_val);
         }
     }
-    printf("Remapped the image histogram.\n");
     return 0;
 }
 
@@ -268,6 +267,7 @@ int LabImage::calc_neighbor(const int& w, const int&h, const int& size, double &
 int LabImage::transfer(LabImage& src_img, const std::vector<std::pair<int, int>>& pixel_arr, const int& size, const double& luminance_ratio)
 {
     const double src_sig_val = src_img.sig(pixel_arr, L);
+#pragma omp parallel for
     for(int w = 0; w < _width; w ++)
     {
         for(int h = 0; h < _height; h ++)

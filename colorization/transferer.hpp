@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-20 01:38:57
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2019-12-20 07:56:01
+ * @LastEditTime : 2019-12-20 08:49:12
  * @Description: Transferer provides API to transfer color to a gray scale image.
  */
 #ifndef COLORIZE_TRANSFERER_H
@@ -45,12 +45,14 @@ int Transferer::colorize(const std::string& src_path, const std::string& target_
     if(_target.remap_histogram(_src)) {
         return 1;
     }
+    printf("Remapped the image histogram.\n");
 
     std::vector<std::pair<int, int>> sample_arr;
     if(_src.jitter_sampling(_sample_num, sample_arr)) {
         printf("Fail to sample source image\n");
         return 1;
     }
+    printf("Jitter sampled.\n");
 
     if(_target.transfer(_src, sample_arr, 5, 0.5)) {
         printf("Fail to transfer color.\n");
