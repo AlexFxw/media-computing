@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-19 11:02:27
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2019-12-20 08:48:47
+ * @LastEditTime : 2020-01-04 06:46:17
  * @Description: This header is used to deal with image files.
  */
 #ifndef COLORIZE_IMAGE_HANDLER
