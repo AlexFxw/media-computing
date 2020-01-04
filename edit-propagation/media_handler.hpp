@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 05:45:20
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-04 06:49:36
+ * @LastEditTime : 2020-01-04 11:00:30
  * @Description: Handling the photos and video.
  */
 #ifndef EDIT_MEDIA_HANDLER_HPP
@@ -22,7 +22,7 @@ enum CHANNEL
 
 class Image
 {
-private:
+protected:
     cv::Mat data;
     uint8_t *pixel_ptr;
 
@@ -52,7 +52,7 @@ public:
             printf("Invalid w, h in getting pixel\n");
             return 0;
         }
-        return pixel_ptr[h*width*channels + w*channels + (int)channel];
+        return pixel_ptr[h * width * channels + w * channels + (int)channel];
     }
 };
 
