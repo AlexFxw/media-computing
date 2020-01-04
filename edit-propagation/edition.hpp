@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 11:00:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-04 11:13:34
+ * @LastEditTime : 2020-01-04 12:12:21
  * @Description: The class for edition. 
  */
 #ifndef EDIT_EDITION_HPP

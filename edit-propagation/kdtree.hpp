@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 06:28:28
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-04 08:06:52
+ * @LastEditTime : 2020-01-04 12:35:28
  * @Description: Implement of KD Tree 
  */
 
@@ -11,8 +11,10 @@
 
 #include <vector>
 #include <algorithm>
+#include <cstdint>
 #include "media_handler.hpp"
 #include "kdvalue.hpp"
+#include "edition.hpp"
 
 template <class T>
 struct KDNode
@@ -23,8 +25,7 @@ struct KDNode
     T lower_bound, upper_bound;
     int pivot;
 
-    KDNode() : left(NULL), right(NULL), parent(NULL) {}
-    KDNode(T l, T u, int p): KDNode(), lower_bound(l), upper_bound(u), pivot(p) {}
+    KDNode(T l, T u, int p):  left(NULL), right(NULL), parent(NULL), lower_bound(l), upper_bound(u), pivot(p) {}
     ~KDNode()
     {
         if (left != NULL)
@@ -33,10 +34,7 @@ struct KDNode
             delete right;
         if (parent != NULL)
             delete parent;
-        if (data_index != NULL)
-            delete data_index;
     }
-
 };
 
 template <class T>
@@ -47,13 +45,13 @@ private:
     int dimension;
     std::vector<T> data;
     int cur_pivot;
-    int threshold;
+    int threshold = 256;
+    double dist_threshold = 128;
     bool kdvalue_less_cmp(const T &t1, const T &t2);
-    bool term_condition(int num, const KDNode<T> *node, const Image &edit);
+    bool term_condition(int num, const KDNode<T> *node, const Edition &edit);
 
 public:
     typedef typename std::vector<T>::iterator kd_iter;
-    KDTree() : root(NULL), dimension(T::dim()), cur_pivot(0), threshold(256) {}
     KDTree(std::vector<T> &_data);
     ~KDTree()
     {
@@ -61,20 +59,18 @@ public:
             delete root;
         data.clear();
     }
-    static KDTree *CreateFromImage(const Image &img, const Image &edit);
-    KDNode<T> *KDTree<T>::create_node(const Image &edit, int pivot, T lower, T upper, kd_iter start, kd_iter end); 
-    ~KDTree();
-
-    int build(const T &lower, const T &upper, const Image &edit);
+    static KDTree *CreateFromImage(Image &img, Edition &edit);
+    KDNode<T> *create_node(const Edition &edit, int pivot, T lower, T upper, KDTree<T>::kd_iter start, KDTree<T>::kd_iter end); 
+    int build(const T &lower, const T &upper, const Edition &edit);
 };
 
 template <class T>
-KDTree<T>::KDTree(std::vector<T> &_data) : KDTree(), data(_data), root(NULL)
+KDTree<T>::KDTree(std::vector<T> &_data) : root(NULL), dimension(T::dim()), cur_pivot(0),  data(_data)
 {
 }
 
 template <class T>
-KDTree<T> *KDTree<T>::CreateFromImage(const Image &img, const Image &edit)
+KDTree<T> *KDTree<T>::CreateFromImage(Image &img, Edition &edit)
 {
     // Only image KD here
     std::vector<T> img_kdvalue;
@@ -92,7 +88,7 @@ KDTree<T> *KDTree<T>::CreateFromImage(const Image &img, const Image &edit)
 }
 
 template <class T>
-KDNode<T>* KDTree<T>::create_node(const Image &edit, int pivot, T lower, T upper, kd_iter start, kd_iter end)
+KDNode<T>* KDTree<T>::create_node(const Edition &edit, int pivot, T lower, T upper, KDTree<T>::kd_iter start, KDTree<T>::kd_iter end)
 {
     KDNode<T> *node = new KDNode<T>(lower, upper);
     std::sort(start, end, this->kdvalue_less_cmp);
@@ -117,7 +113,7 @@ KDNode<T>* KDTree<T>::create_node(const Image &edit, int pivot, T lower, T upper
     T mid_point = lower_div;
     mid_point.set_value(pivot, mid);
     kd_iter new_iter;
-    for (kd_iter iter = start, iter != end; iter++)
+    for (kd_iter iter = start; iter != end; iter++)
     {
         if (iter->get_value(cur_pivot) >= mid) {
             new_iter = iter;
@@ -132,7 +128,7 @@ KDNode<T>* KDTree<T>::create_node(const Image &edit, int pivot, T lower, T upper
 }
 
 template <class T>
-int KDTree<T>::build(const T &lower, const T &upper, const Image &edit)
+int KDTree<T>::build(const T &lower, const T &upper, const Edition &edit)
 {
     root = new KDNode<T>();
     KDNode<T> *node = root;
@@ -146,14 +142,18 @@ bool KDTree<T>::kdvalue_less_cmp(const T &t1, const T &t2)
 }
 
 template <class T>
-bool KDTree<T>::term_condition(int num, const KDNode<T> *node, const Image &edit)
+bool KDTree<T>::term_condition(int num, const KDNode<T> *node, const Edition &edit)
 {
     if(num < this->threshold)
     {
         return true;
     }
     T mid_point = (node->lower_bound + node->upper_bound) / 2;
-    // TODO: the distance from edition.
+    double distance = edit.distance(mid_point);
+    if(distance > this->dist_threshold)
+    {
+        return true;
+    }
     return false;
 }
 

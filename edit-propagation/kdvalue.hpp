@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 05:51:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-04 10:46:46
+ * @LastEditTime : 2020-01-04 12:33:30
  * @Description: Define k-d value 
  */
 
@@ -14,7 +14,7 @@
 class KDValue
 {
 public:
-    virtual int get_value(const int &dim) const;
+    virtual int get_value(const int &dim) const = 0;
 };
 
 class ImageKD : public KDValue
@@ -35,7 +35,7 @@ public:
     }
     ~ImageKD() {}
     static int dim() { return dimension; }
-    int get_value(const int &dim)
+    int get_value(const int &dim) const
     {
         if (dim == 0) { return r; }
         else if (dim == 1) { return g; }
