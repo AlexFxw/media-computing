@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-20 19:22:19
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 14:01:07
+ * @LastEditTime : 2020-01-07 16:22:56
  * @Description: main function for edit propagation.
  */
 
@@ -12,6 +12,7 @@
 #include "media_handler.hpp"
 #include "kdtree.hpp"
 #include "corner.hpp"
+#include "optimizer.hpp"
 
 int main(int argc, const char **argv)
 {
@@ -30,6 +31,9 @@ int main(int argc, const char **argv)
     std::cout << "corners num: " << corners->editions.size() << std::endl;
     // for(auto &e: corners->editions)
     //     std::cout << e.second << std::endl;
+    Optimizer<ImageKD> *solver = new Optimizer<ImageKD>(corners);
+    solver->optimize();
+    std::cout << "solved e" << std::endl;
     std::cout << "Finish!" << std::endl;
     return 0;
 }

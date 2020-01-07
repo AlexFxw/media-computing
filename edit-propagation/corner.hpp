@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-07 06:22:02
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 13:46:47
+ * @LastEditTime : 2020-01-07 16:21:17
  * @Description: The definition of corner points
  */
 
@@ -35,6 +35,7 @@ public:
     std::map<T, CornerInfo> editions;
     void set_corner(const T &corner, const CornerInfo &value = CornerInfo());
     int add_corner(const T &corner, const CornerInfo &value);
+    void set_e(const T &corner, float &_e) { editions[corner].e = _e; }
     CornerInfo get_value(const T &corner);
 };
 
@@ -51,7 +52,7 @@ int Corners<T>::add_corner(const T &corner, const CornerInfo &value)
 }
 
 template <class T>
-CornerInfo Corners<T>::get_value(const T&corner)
+CornerInfo Corners<T>::get_value(const T &corner)
 {
     return editions[corner];
 }
