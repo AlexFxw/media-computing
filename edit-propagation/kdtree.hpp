@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 06:28:28
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 12:28:15
+ * @LastEditTime : 2020-01-07 13:44:41
  * @Description: Implement of KD Tree 
  */
 
@@ -51,7 +51,7 @@ struct KDNode
     {
         return this->left != NULL && this->right != NULL;
     }
-    
+
     bool contain_T_junction() const
     {
         if (parent == NULL || !this->has_child())
@@ -61,7 +61,7 @@ struct KDNode
             return false;
         return true;
     }
-    
+
     std::vector<T> get_corners() const
     {
         int dim = T::dim(), num = 1 << dim;
@@ -72,7 +72,7 @@ struct KDNode
             int cnt = 0;
             for (int i = 0; i < dim; i++)
             {
-                uint8_t mask = 1 << cnt;
+                int mask = 1 << cnt;
                 if (((n & mask) >> cnt) % 2 == 0)
                 {
                     // Set this item to lower;
@@ -85,7 +85,7 @@ struct KDNode
         return corners;
     }
 
-    std::vector<T> get_T_junction(const int &dim) const
+    std::vector<T> get_T_junction(const int &dim)
     {
         // TODO: Test this function
         int fixed_pivot = this->parent->pivot;
@@ -171,7 +171,8 @@ KDTree<T> *KDTree<T>::CreateFromImage(Image &img, Edition &edit)
             int r = img.get_pixel(w, h, CHANNEL::R);
             int g = img.get_pixel(w, h, CHANNEL::G);
             int b = img.get_pixel(w, h, CHANNEL::B);
-            img_kdvalue.push_back(T(r, g, b, w, h));
+            double e = edit.get_coof(w, h);
+            img_kdvalue.push_back(T(r, g, b, w, h, e));
         }
     }
     return new KDTree(img_kdvalue);
@@ -253,7 +254,7 @@ bool KDTree<T>::term_condition(int num, KDNode<T> *node, Edition &edit)
 template <class T>
 void KDTree<T>::calc_corners(KDNode<T> *node, Corners<T> *corners)
 {
-    if(node->has_child())
+    if (node->has_child())
     {
         calc_corners(node->left, corners);
         calc_corners(node->right, corners);
@@ -268,14 +269,20 @@ void KDTree<T>::calc_corners(KDNode<T> *node, Corners<T> *corners)
             // Initialize the corner value.
             corners->set_corner(c);
         }
-        for (auto &d : node->data)
+        for (auto &c : corners_nodes)
         {
-            for(auto &c: corners_nodes)
+            double s = 0, g = 0;
+            for (auto &d : node->data)
             {
                 T opposite = Utils::get_opposite_corner<T>(c, node->lower_bound, node->upper_bound);
                 // std::cout << c << " " << opposite << " " << d << std::endl;
-                double s = Utils::multi_interpolate<T>(d, c, opposite);
+                double si = Utils::multi_interpolate<T>(d, c, opposite);
+                s += si;
+                g += d.e * si;
             }
+            // Because e is unknown before we calculate it.
+            g = (s == 0) ? 0 : g / s;
+            corners->add_corner(c, CornerInfo(0.0, g, s));
         }
     }
 }
@@ -283,9 +290,9 @@ void KDTree<T>::calc_corners(KDNode<T> *node, Corners<T> *corners)
 template <class T>
 void KDTree<T>::adjust_T_junctions(KDNode<T> *node, Corners<T> *corners)
 {
-    if(node->contain_T_junction())
+    if (node->contain_T_junction())
     {
-        std::vector<T> t_vec = node->get_T_junction();
+        std::vector<T> t_vec = node->get_T_junction(this->dimension);
         int pivot = node->pivot;
         for (auto &t : t_vec)
         {
@@ -297,12 +304,11 @@ void KDTree<T>::adjust_T_junctions(KDNode<T> *node, Corners<T> *corners)
         }
         this->clear_vector(t_vec);
     }
-    if(node->has_child())
+    if (node->has_child())
     {
         adjust_T_junctions(node->left, corners);
         adjust_T_junctions(node->right, corners);
     }
 }
-
 
 #endif //KDTREE_KDTREE_H

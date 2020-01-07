@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-07 09:42:33
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 09:47:13
+ * @LastEditTime : 2020-01-07 13:19:41
  * @Description: file content
  */
 
@@ -32,7 +32,6 @@ protected:
     }
     virtual void TearDown() override
     {
-        delete root;
     }
     KDNode<ImageKD> *root, *left, *right;
 };
@@ -60,6 +59,14 @@ TEST_F(TestKDNode, get_corners)
     EXPECT_EQ(kd_vec.size(), 1 << 5);
     kd_vec = root->get_corners();
     EXPECT_EQ(kd_vec.size(), 1 << 5);
+}
+
+TEST_F(TestKDNode, set_image_kdvalue)
+{
+    ImageKD kd(0, 0, 0, 300, 400);
+    EXPECT_EQ(kd.get_value(0), 0);
+    kd.set_value(0, 24);
+    EXPECT_EQ(kd.get_value(0), 24);
 }
 
 #endif // EDIT_TEST_KDNODE

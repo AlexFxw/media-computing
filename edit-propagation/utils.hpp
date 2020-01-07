@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 07:25:57
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 12:26:56
+ * @LastEditTime : 2020-01-07 12:50:12
  * @Description: file content
  */
 
@@ -18,7 +18,10 @@ public:
         static double multi_interpolate(const T &point, const T &target, const T &opposite);
     template <class T>
         static T get_opposite_corner(const T &corner, const T &lower, const T &upper);
+    static double w; // 和用户的编辑相关的权重
 };
+
+double Utils::w = 0.8;
 
 template <class T>
 double Utils::multi_interpolate(const T &point, const T &target, const T &opposite)

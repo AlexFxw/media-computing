@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-20 19:22:19
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 12:18:57
+ * @LastEditTime : 2020-01-07 14:01:07
  * @Description: main function for edit propagation.
  */
 
@@ -24,6 +24,12 @@ int main(int argc, const char **argv)
     std::cout << "built the kd tree." << std::endl;
     Corners<ImageKD> *corners = new Corners<ImageKD>();
     kdtree->calc_corners(kdtree->root, corners);
+    std::cout << "calculated the corner value!" << std::endl;
+    kdtree->adjust_T_junctions(kdtree->root, corners);
+    std::cout << "adjusted T junctions" << std::endl;
+    std::cout << "corners num: " << corners->editions.size() << std::endl;
+    // for(auto &e: corners->editions)
+    //     std::cout << e.second << std::endl;
     std::cout << "Finish!" << std::endl;
     return 0;
 }

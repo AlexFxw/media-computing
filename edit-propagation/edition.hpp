@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 11:00:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 12:18:37
+ * @LastEditTime : 2020-01-07 13:35:38
  * @Description: The class for edition. 
  */
 #ifndef EDIT_EDITION_HPP
@@ -18,13 +18,16 @@ class Edition
 protected:
     Image *image;
     ImageKD *center; // The center of the edition
+    double *coof;
+    int width, height;
 
 public:
     Edition(const std::string &img_path)
     {
         // Single region edition now.
         image = new Image(img_path);
-        int width = image->width, height = image->height;
+        width = image->width, height = image->height;
+        coof = new double[width * height];
         double r = 0, g = 0, b = 0, w = 0, h = 0;
         int cnt = 0;
         for (int i = 0; i < width; i++)
@@ -35,7 +38,11 @@ public:
                 int _g = image->get_pixel(i, j, CHANNEL::G);
                 int _b = image->get_pixel(i, j, CHANNEL::B);
                 if (_r == 255 && _g == 255 && _r == 255)
+                {
+                    coof[j * width + i] = 0;
                     continue;
+                }
+                coof[j * width + i] = ((double)_r / 255.0 + (double)_g / 255.0 + (double)_b / 255.0) / 3.0;
                 cnt++;
                 r += _r;
                 g += _g;
@@ -50,6 +57,7 @@ public:
     {
         delete image;
         delete center;
+        delete coof;
     }
     double distance(const ImageKD &pixel) const
     {
@@ -62,6 +70,13 @@ public:
         dist = sqrt(dist);
         // std::cout << "distance of: " << pixel << " | " << dist << std::endl;
         return dist;
+    }
+    double get_coof(int w, int h) const
+    {
+        if(w < 0 || w >= width || h < 0 || h >= height) {
+            return 0.0;
+        }
+        return coof[h * width + w];
     }
 };
 
