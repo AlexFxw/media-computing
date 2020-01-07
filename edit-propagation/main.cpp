@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-20 19:22:19
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-06 07:32:15
+ * @LastEditTime : 2020-01-07 12:18:57
  * @Description: main function for edit propagation.
  */
 
@@ -11,6 +11,7 @@
 #include "edition.hpp"
 #include "media_handler.hpp"
 #include "kdtree.hpp"
+#include "corner.hpp"
 
 int main(int argc, const char **argv)
 {
@@ -20,6 +21,9 @@ int main(int argc, const char **argv)
     ImageKD lower(0, 0, 0, 0, 0);
     ImageKD upper(255, 255, 255, img.width, img.height);
     kdtree->build(lower, upper, edition);
+    std::cout << "built the kd tree." << std::endl;
+    Corners<ImageKD> *corners = new Corners<ImageKD>();
+    kdtree->calc_corners(kdtree->root, corners);
     std::cout << "Finish!" << std::endl;
     return 0;
 }

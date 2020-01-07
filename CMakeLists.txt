@@ -51,10 +51,10 @@ include_directories(
 
 
 # Now simply link against gtest or gtest_main as needed. Eg
-add_executable(test_kdtree edit-propagation/tests/test_kdtree.cpp)
-target_link_libraries(test_kdtree gtest_main)
-target_link_libraries(test_kdtree ${OpenCV_LIBS})
-add_test(NAME kdtree_test COMMAND test_kdtree)
+add_executable(test_all edit-propagation/tests/test_all.cpp)
+target_link_libraries(test_all gtest_main)
+target_link_libraries(test_all ${OpenCV_LIBS})
+add_test(NAME kdtree_test COMMAND test_all)
 
 add_executable(colorization colorization/main.cpp)
 target_link_libraries(colorization ${OpenCV_LIBS})

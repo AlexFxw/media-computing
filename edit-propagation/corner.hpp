@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-07 06:22:02
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 06:33:13
+ * @LastEditTime : 2020-01-07 10:48:13
  * @Description: The definition of corner points
  */
 
@@ -11,36 +11,37 @@
 
 #include <map>
 
-struct Vec3
+struct CornerInfo
 {
-    double x, y, z;
-    Vec3() : x(0), y(0), z(0) {}
-    Vec3(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
-    Vec3 operator+(const Vec3 &v) { return Vec3(x + v.x, y + v.y, z + v.z); }
-    Vec3 operator/(const double &d) { return Vec3(x / d, y / d, z / d); }
+    double e, w, g;
+    CornerInfo() : e(0), w(0), g(0) {}
+    CornerInfo(double _e, double _w, double _g) : e(_e), w(_w), g(_g) {}
+    CornerInfo operator+(const CornerInfo &v) { return CornerInfo(e + v.e, w + v.w, g + v.g); }
+    CornerInfo operator/(const double &d) { return CornerInfo(e / d, w / d, g / d); }
 };
 
 template <class T>
-class Corners:
+class Corners
 {
 private:
-    std::map<T, Vec3> editions;
+    std::map<T, CornerInfo> editions;
 
 public:
     Corners() {}
     ~Corners() {}
-    void init_corner(const T &corner);
-    int add_cornder(const T &corner, const Vec3 &value);
+    void set_corner(const T &corner, const CornerInfo& value = CornerInfo());
+    int add_cornder(const T &corner, const CornerInfo &value);
+    CornerInfo get_value(const T &corner) const;
 };
 
 template <class T>
-void Corners<T>::init_corner(const T &corner)
+void Corners<T>::set_corner(const T &corner, const CornerInfo& value)
 {
-    editions[corner] = Vec3();
+    editions[corner] = value;
 }
 
 template <class T>
-int Corners<T>::add_cornder(const T &corner, const Vec3 &value)
+int Corners<T>::add_cornder(const T &corner, const CornerInfo &value)
 {
     editions[corner] = editions[corner] + value;
 }

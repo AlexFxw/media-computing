@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 06:28:28
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 08:57:58
+ * @LastEditTime : 2020-01-07 12:28:15
  * @Description: Implement of KD Tree 
  */
 
@@ -16,6 +16,8 @@
 #include "media_handler.hpp"
 #include "kdvalue.hpp"
 #include "edition.hpp"
+#include "corner.hpp"
+#include "utils.hpp"
 
 template <class T>
 struct KDNode
@@ -25,7 +27,6 @@ struct KDNode
     std::vector<T> data;
     T lower_bound, upper_bound;
     int pivot;
-
     KDNode(T l, T u, int p) : left(NULL), right(NULL), parent(NULL), lower_bound(l), upper_bound(u), pivot(p) {}
     ~KDNode()
     {
@@ -36,6 +37,7 @@ struct KDNode
         if (parent != NULL)
             delete parent;
     }
+
     KDNode<T> *sibling() const
     {
         if (parent == NULL)
@@ -44,10 +46,12 @@ struct KDNode
             return parent->right;
         return parent->left;
     }
+
     bool has_child() const
     {
         return this->left != NULL && this->right != NULL;
     }
+    
     bool contain_T_junction() const
     {
         if (parent == NULL || !this->has_child())
@@ -57,9 +61,33 @@ struct KDNode
             return false;
         return true;
     }
+    
+    std::vector<T> get_corners() const
+    {
+        int dim = T::dim(), num = 1 << dim;
+        std::vector<T> corners;
+        for (int n = 0; n < num; n++)
+        {
+            T tmp = lower_bound;
+            int cnt = 0;
+            for (int i = 0; i < dim; i++)
+            {
+                uint8_t mask = 1 << cnt;
+                if (((n & mask) >> cnt) % 2 == 0)
+                {
+                    // Set this item to lower;
+                    tmp.set_value(i, upper_bound.get_value(i));
+                }
+                cnt++;
+            }
+            corners.push_back(tmp);
+        }
+        return corners;
+    }
+
     std::vector<T> get_T_junction(const int &dim) const
     {
-        // TODO: Test thsi function
+        // TODO: Test this function
         int fixed_pivot = this->parent->pivot;
         int div = upper_bound.get_value(fixed_pivot);
         assert(this->pivot != fixed_pivot);
@@ -68,18 +96,18 @@ struct KDNode
         new_kdvalue.set_value(pivot, mid_value);
         std::vector<T> vec;
         int num = (1 << (dim - 2));
-        if(num > 0) 
+        if (num > 0)
         {
-            for (int n = 0; n < num; n ++)
+            for (int n = 0; n < num; n++)
             {
                 int cnt = 0;
                 T tmp = new_kdvalue;
                 for (int i = 0; i < dim; i++)
                 {
-                    if(i == fixed_pivot || i == this->pivot)
+                    if (i == fixed_pivot || i == this->pivot)
                         continue;
                     uint8_t mask = 1 << cnt;
-                    if(((n & mask) >> cnt) % 2 == 0)
+                    if (((n & mask) >> cnt) % 2 == 0)
                     {
                         // Set this item to lower;
                         tmp.set_value(i, lower_bound.get_value(i));
@@ -97,7 +125,6 @@ template <class T>
 class KDTree
 {
 private:
-    KDNode<T> *root;
     int dimension;
     std::vector<T> data;
     int cur_pivot;
@@ -111,6 +138,7 @@ private:
     }
 
 public:
+    KDNode<T> *root;
     KDTree(std::vector<T> &_data);
     ~KDTree()
     {
@@ -121,6 +149,9 @@ public:
     static KDTree *CreateFromImage(Image &img, Edition &edit);
     KDNode<T> *create_node(Edition &edit, int pivot, T lower, T upper, std::vector<T> kdvalues);
     int build(T &lower, T &upper, Edition &edit);
+    // TODO: Calc corner value
+    void calc_corners(KDNode<T> *node, Corners<T> *corners);
+    void adjust_T_junctions(KDNode<T> *node, Corners<T> *corners);
 };
 
 template <class T>
@@ -160,7 +191,7 @@ KDNode<T> *KDTree<T>::create_node(Edition &edit, int pivot, T lower, T upper, st
          * 2. The number within a cluster(node) is less enough.
          */
         node->data = kdvalues;
-        printf("Terminated. %d\n", (int)node->data.size());
+        // printf("Terminated. %d\n", (int)node->data.size());
         return node;
     }
     int lower_div = lower.get_value(pivot);
@@ -218,5 +249,60 @@ bool KDTree<T>::term_condition(int num, KDNode<T> *node, Edition &edit)
     }
     return false;
 }
+
+template <class T>
+void KDTree<T>::calc_corners(KDNode<T> *node, Corners<T> *corners)
+{
+    if(node->has_child())
+    {
+        calc_corners(node->left, corners);
+        calc_corners(node->right, corners);
+    }
+    else
+    {
+        // this is leaf node.
+        std::vector<T> corners_nodes = node->get_corners();
+        int data_num = node->data.size();
+        for (auto &c : corners_nodes)
+        {
+            // Initialize the corner value.
+            corners->set_corner(c);
+        }
+        for (auto &d : node->data)
+        {
+            for(auto &c: corners_nodes)
+            {
+                T opposite = Utils::get_opposite_corner<T>(c, node->lower_bound, node->upper_bound);
+                // std::cout << c << " " << opposite << " " << d << std::endl;
+                double s = Utils::multi_interpolate<T>(d, c, opposite);
+            }
+        }
+    }
+}
+
+template <class T>
+void KDTree<T>::adjust_T_junctions(KDNode<T> *node, Corners<T> *corners)
+{
+    if(node->contain_T_junction())
+    {
+        std::vector<T> t_vec = node->get_T_junction();
+        int pivot = node->pivot;
+        for (auto &t : t_vec)
+        {
+            T low = t.create_new(pivot, node->lower_bound.get_value(pivot));
+            T upper = t.create_new(pivot, node->upper_bound.get_value(pivot));
+            CornerInfo low_value = corners->get_value(low);
+            CornerInfo upper_value = corners->get_value(upper);
+            corners->set_corner(t, (low_value + upper_value) / 2);
+        }
+        this->clear_vector(t_vec);
+    }
+    if(node->has_child())
+    {
+        adjust_T_junctions(node->left, corners);
+        adjust_T_junctions(node->right, corners);
+    }
+}
+
 
 #endif //KDTREE_KDTREE_H

@@ -2,9 +2,12 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-06 05:03:26
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 09:04:08
+ * @LastEditTime : 2020-01-07 09:43:44
  * @Description: Testing the kdtree
  */
+
+#ifndef EDIT_TEST_KDTREE
+#define EDIT_TEST_KDTREE
 
 #include <gtest/gtest.h>
 #include <cstring>
@@ -51,33 +54,5 @@ TEST_F(TestKDTree, Legal)
     }
 }
 
-TEST(TestKDNode, T_junction)
-{
-    ImageKD lower(0, 0, 0, 0, 0), upper(255, 255, 255, 300, 400);
-    KDNode<ImageKD> *root, *left, *right;
-    root = new KDNode<ImageKD>(lower, upper, 0);
-    left = new KDNode<ImageKD>(lower, ImageKD(127, 255, 255, 300, 400), 1);
-    right = new KDNode<ImageKD>(ImageKD(128, 255, 255, 300, 400), upper, 1);
-    left->parent = root;
-    right->parent = root;
-    left->left = new KDNode<ImageKD>(lower, upper, 1);
-    left->right = new KDNode<ImageKD>(lower, upper, 1);
-    root->left = left;
-    root->right = right;
-    EXPECT_EQ(right, root->left->sibling());
-    EXPECT_TRUE(left->contain_T_junction());
-    std::vector<ImageKD> kd_vec = left->get_T_junction(5);
-    for(auto &kd:kd_vec)
-    {
-        // std::cout << kd << std::endl;
-        EXPECT_EQ(127, kd.get_value(0));
-        EXPECT_EQ(127, kd.get_value(1));
-    }
-    EXPECT_EQ(kd_vec.size(), 1 << 3);
-}
 
-int main(int argc, char *argv[])
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+#endif // EDIT_TEST_KDTREE

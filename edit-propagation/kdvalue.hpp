@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 05:51:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 09:03:17
+ * @LastEditTime : 2020-01-07 12:16:34
  * @Description: Define k-d value 
  */
 
@@ -46,11 +46,11 @@ public:
     }
     ImageKD operator+(const ImageKD &kd)
     {
-        return ImageKD(r + kd.r, g + kd.g, b + kd.b, w + kd.w, h + kd.h);
+        return ImageKD(unsigned(r) + unsigned(kd.r), unsigned(g) + unsigned(kd.g), unsigned(b + kd.b), w + kd.w, h + kd.h);
     }
     ImageKD operator/(const int &n)
     {
-        return ImageKD(r / n, g / n, b / n, w / n, h / n);
+        return ImageKD(unsigned(r) / n, unsigned(g) / n, unsigned(b) / n, w / n, h / n);
     }
     friend std::ostream &operator<<(std::ostream &output, const ImageKD &kd)
     {
@@ -86,6 +86,17 @@ public:
             w = value;
         else if (dim == 4)
             h = value;
+    }
+    bool operator<(const ImageKD &c) const
+    {
+        for (int i = 0; i < dimension; i++)
+        {
+            if (this->get_value(i) < c.get_value(i))
+                return true;
+            else if (this->get_value(i) > c.get_value(i))
+                return false;
+        }
+        return true;
     }
 };
 

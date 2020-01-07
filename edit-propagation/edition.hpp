@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 11:00:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-06 03:19:02
+ * @LastEditTime : 2020-01-07 12:18:37
  * @Description: The class for edition. 
  */
 #ifndef EDIT_EDITION_HPP
@@ -60,7 +60,7 @@ public:
         dist += pow(center->w - pixel.w, 2);
         dist += pow(center->h - pixel.h, 2);
         dist = sqrt(dist);
-        std::cout << "distance of: " << pixel << " | " << dist << std::endl;
+        // std::cout << "distance of: " << pixel << " | " << dist << std::endl;
         return dist;
     }
 };
