@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 05:45:20
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-04 12:28:07
+ * @LastEditTime : 2020-01-05 13:37:47
  * @Description: Handling the photos and video.
  */
 #ifndef EDIT_MEDIA_HANDLER_HPP
@@ -30,8 +30,8 @@ public:
     int width, height, channels;
     Image(std::string img_name)
     {
-        data = cv::imread(img_name.c_str(), cv::IMREAD_COLOR);
-        pixel_ptr = (uint8_t *)data.data;
+        data = cv::imread(img_name, cv::IMREAD_COLOR);
+        pixel_ptr = (uint8_t *)this->data.data;
         height = data.rows;
         width = data.cols;
         channels = 3;
@@ -51,7 +51,7 @@ public:
         {
             return 0;
         }
-        return (uint8_t)this->pixel_ptr[h * width * channels + w * channels + (int)channel];
+        return this->pixel_ptr[h * width * channels + w * channels + (int)channel];
     }
 };
 

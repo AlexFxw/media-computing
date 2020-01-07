@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 05:51:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-04 12:33:30
+ * @LastEditTime : 2020-01-07 09:03:17
  * @Description: Define k-d value 
  */
 
@@ -10,11 +10,22 @@
 #define EDIT_KDVALUE_H
 
 #include <cstdint>
+#include <ostream>
+
+enum KDIndex
+{
+    r = 0,
+    g = 1,
+    b = 2,
+    w = 3,
+    h = 4
+};
 
 class KDValue
 {
 public:
     virtual int get_value(const int &dim) const = 0;
+    virtual void set_value(const int &dim, int value) = 0;
 };
 
 class ImageKD : public KDValue
@@ -26,31 +37,55 @@ public:
     uint8_t r, g, b;
     uint16_t w, h;
     ImageKD() {}
-    ImageKD(uint8_t _r, uint8_t _g, uint8_t _b, uint16_t _w, uint16_t _h): r(_r), g(_g), b(_b), w(_w), h(_h) {} 
-    ImageKD operator+(const ImageKD &kd) {
+    ImageKD(uint8_t _r, uint8_t _g, uint8_t _b, uint16_t _w, uint16_t _h) : r(_r), g(_g), b(_b), w(_w), h(_h) {}
+    ImageKD create_new(const int &pivot, const int &new_value) const
+    {
+        ImageKD new_kd = *this;
+        new_kd.set_value(pivot, new_value);
+        return new_kd;
+    }
+    ImageKD operator+(const ImageKD &kd)
+    {
         return ImageKD(r + kd.r, g + kd.g, b + kd.b, w + kd.w, h + kd.h);
     }
-    ImageKD operator/(const int &n) {
+    ImageKD operator/(const int &n)
+    {
         return ImageKD(r / n, g / n, b / n, w / n, h / n);
+    }
+    friend std::ostream &operator<<(std::ostream &output, const ImageKD &kd)
+    {
+        output << "r: " << unsigned(kd.r) << ", g: " << unsigned(kd.g) << ", b: " << unsigned(kd.b) << ", w: " << kd.w << ", h: " << kd.h;
+        return output;
     }
     ~ImageKD() {}
     static int dim() { return dimension; }
     int get_value(const int &dim) const
     {
-        if (dim == 0) { return r; }
-        else if (dim == 1) { return g; }
-        else if (dim == 2) { return b; }
-        else if (dim == 3) { return w; }
-        else if (dim == 4) { return h; }
-        else { return 0; }
+        if (dim == 0)
+            return unsigned(r);
+        else if (dim == 1)
+            return unsigned(g);
+        else if (dim == 2)
+            return unsigned(b);
+        else if (dim == 3)
+            return w;
+        else if (dim == 4)
+            return h;
+        else
+            return 0;
     }
     void set_value(const int &dim, int value)
     {
-        if (dim == 0) { r = value; } 
-        else if (dim == 1) { g = value; } 
-        else if (dim == 2) { b = value; } 
-        else if (dim == 3) { w = value; } 
-        else if (dim == 4) { h = value; } 
+        if (dim == 0)
+            r = value;
+        else if (dim == 1)
+            g = value;
+        else if (dim == 2)
+            b = value;
+        else if (dim == 3)
+            w = value;
+        else if (dim == 4)
+            h = value;
     }
 };
 

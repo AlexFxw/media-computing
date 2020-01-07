@@ -12,11 +12,17 @@ if(OPENMP_FOUND)
 endif()
 
 # Compile optimization
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 
 # Use OpenCV
 find_package(OpenCV REQUIRED)
+find_package(GTest REQUIRED)
+
+include_directories(
+    ${GTEST_INCLUDE_DIRS}
+    edit-propagation/
+)
 
 # Download and unpack googletest at configure time
 # configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
@@ -44,11 +50,11 @@ find_package(OpenCV REQUIRED)
 #                  EXCLUDE_FROM_ALL)
 
 
-
 # Now simply link against gtest or gtest_main as needed. Eg
-# add_executable(example example.cpp)
-# target_link_libraries(example gtest_main)
-# add_test(NAME example_test COMMAND example)
+add_executable(test_kdtree edit-propagation/tests/test_kdtree.cpp)
+target_link_libraries(test_kdtree gtest_main)
+target_link_libraries(test_kdtree ${OpenCV_LIBS})
+add_test(NAME kdtree_test COMMAND test_kdtree)
 
 add_executable(colorization colorization/main.cpp)
 target_link_libraries(colorization ${OpenCV_LIBS})
