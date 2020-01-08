@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-20 19:22:19
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 10:22:23
+ * @LastEditTime : 2020-01-08 16:41:21
  * @Description: main function for edit propagation.
  */
 
@@ -24,19 +24,20 @@ int main(int argc, const char **argv)
     ImageKD upper(255, 255, 255, img.width, img.height);
     Utils::width = img.width;
     Utils::height = img.height;
+
     kdtree->build(lower, upper, edition);
     std::cout << "built the kd tree." << std::endl;
     Corners<ImageKD> *corners = new Corners<ImageKD>();
     kdtree->calc_corners(kdtree->root, corners);
     std::cout << "calculated the corner value!" << std::endl;
-    // kdtree->adjust_T_junctions(kdtree->root, corners);
-    // std::cout << "adjusted T junctions" << std::endl;
     std::cout << "corners num: " << corners->editions.size() << std::endl;
-    // for(auto &e: corners->editions)
-    //     std::cout << e.second << std::endl;
     Optimizer<ImageKD> *solver = new Optimizer<ImageKD>(corners);
-    solver->optimize();
+    DsMat res = solver->optimize();
     std::cout << "solved e" << std::endl;
+    solver->apply_edition(res);
+    std::cout << "Applied edition" << std::endl;
+    kdtree->adjust_T_junctions(kdtree->root, corners);
+    std::cout << "adjusted T junctions" << std::endl;
     std::cout << "Finish!" << std::endl;
     return 0;
 }

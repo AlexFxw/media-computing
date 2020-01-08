@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 07:25:57
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 15:34:36
+ * @LastEditTime : 2020-01-08 16:41:38
  * @Description: file content
  */
 
@@ -10,8 +10,15 @@
 #define EDIT_UTILS_HPP
 
 #include <cmath>
+#include <eigen3/Eigen/Sparse>
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/IterativeLinearSolvers>
+
 
 typedef float Float;
+typedef Eigen::SparseMatrix<Float> SpMat;
+typedef Eigen::ConjugateGradient<SpMat> SpSolver;
+typedef Eigen::MatrixXf DsMat;
 
 class Utils
 {

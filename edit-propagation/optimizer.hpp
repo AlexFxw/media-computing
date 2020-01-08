@@ -2,24 +2,17 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-07 10:54:38
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 16:24:47
+ * @LastEditTime : 2020-01-08 16:39:38
  * @Description: The Optimizer class to solve 
  */
 #ifndef EDIT_Optimizer_HPP
 #define EDIT_Optimizer_HPP
 
-#include <eigen3/Eigen/Sparse>
-#include <eigen3/Eigen/Dense>
-#include <eigen3/Eigen/IterativeLinearSolvers>
 #include <vector>
 #include <random>
 #include <ctime>
 #include "corner.hpp"
 #include "utils.hpp"
-
-typedef Eigen::SparseMatrix<Float> SpMat;
-typedef Eigen::ConjugateGradient<SpMat> SpSolver;
-typedef Eigen::MatrixXf DsMat;
 
 template <class T>
 class Optimizer
@@ -35,7 +28,8 @@ protected:
 
 public:
     Optimizer(Corners<T> *cor, int _c_ratio = 1000) : corners(cor), c_ratio(_c_ratio) {}
-    void optimize();
+    DsMat optimize();
+    void apply_edition(const DsMat &res);
     void sampling();
 };
 
@@ -73,7 +67,7 @@ SpMat Optimizer<T>::sp_inv(const SpMat &sp, const int &n)
 }
 
 template <class T>
-void Optimizer<T>::optimize()
+DsMat Optimizer<T>::optimize()
 {
     int n = corners->editions.size();
     SpMat g = create_sp_mat(n, 1);
@@ -123,13 +117,11 @@ void Optimizer<T>::optimize()
     }
     SpMat su = u.sparseView();
     DsMat uau_t_g = Utils::w * (su * (a_inv * (u_trans * g)));
-    std::cout << uau_t_g << std::endl;
     DsMat mid_term = ((-1) * a + u_trans * (D_inv * su)).inverse();
     DsMat first_term = D_inv * uau_t_g;
     DsMat last_term = D_inv * (su * (mid_term * (u_trans * (D_inv * uau_t_g))));
     DsMat e_res = (0.5 / Utils::lambda) * (first_term - last_term);
-    SpMat test = e_res.sparseView();
-    std::cout << "test" << std::endl;
+    return e_res;
 }
 
 template <class T>
@@ -147,4 +139,16 @@ void Optimizer<T>::sampling()
         samples.push_back(value);
     }
 }
+
+template <class T>
+void Optimizer<T>::apply_edition(const DsMat &res)
+{
+    int n = corners->editions.size();
+    for (int i = 0; i < n; i ++)
+    {
+        T &point = points[i];
+        corners->editions[point].e = res(i, 0);
+    }
+}
+
 #endif // EDIT_Optimizer_HPP
