@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 05:45:20
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 15:31:44
+ * @LastEditTime : 2020-01-08 16:48:07
  * @Description: Handling the photos and video.
  */
 #ifndef EDIT_MEDIA_HANDLER_HPP
@@ -28,6 +28,11 @@ protected:
 
 public:
     int width, height, channels;
+    Image(int w, int h): width(w), height(h), channels(3)
+    {
+        this->data = cv::Mat(h, w, CV_8UC3);
+        pixel_ptr = (uint8_t *)this->data.data;
+    }
     Image(std::string img_name)
     {
         data = cv::imread(img_name, cv::IMREAD_COLOR);
@@ -52,6 +57,16 @@ public:
             return 0;
         }
         return this->pixel_ptr[h * width * channels + w * channels + (int)channel];
+    }
+    int set_pixel(int w, int h, CHANNEL channel, const uint8_t &value)
+    {
+        if (w < 0 || w >= this->width || h < 0 || h >= this->height)
+        {
+            printf("Fail to set pixel, out of bound.\n");
+            return 1;
+        }
+        this->pixel_ptr[h * width * channels + w * channels + (int)channel] = value;
+        return 0;
     }
 };
 
