@@ -2,17 +2,24 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-07 10:54:38
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 18:32:16
+ * @LastEditTime : 2020-01-08 16:24:47
  * @Description: The Optimizer class to solve 
  */
 #ifndef EDIT_Optimizer_HPP
 #define EDIT_Optimizer_HPP
 
+#include <eigen3/Eigen/Sparse>
 #include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/IterativeLinearSolvers>
 #include <vector>
 #include <random>
 #include <ctime>
 #include "corner.hpp"
+#include "utils.hpp"
+
+typedef Eigen::SparseMatrix<Float> SpMat;
+typedef Eigen::ConjugateGradient<SpMat> SpSolver;
+typedef Eigen::MatrixXf DsMat;
 
 template <class T>
 class Optimizer
@@ -22,6 +29,9 @@ protected:
     std::vector<int> samples;
     std::vector<T> points;
     int c_ratio;
+    void insert_vec(SpMat &sp, std::vector<T> &vec);
+    SpMat create_sp_mat(const int &rows, const int &cols);
+    SpMat sp_inv(const SpMat &sp, const int &n);
 
 public:
     Optimizer(Corners<T> *cor, int _c_ratio = 1000) : corners(cor), c_ratio(_c_ratio) {}
@@ -30,62 +40,96 @@ public:
 };
 
 template <class T>
+void Optimizer<T>::insert_vec(SpMat &sp, std::vector<T> &vec)
+{
+    // TODO:
+}
+
+template <class T>
+SpMat Optimizer<T>::create_sp_mat(const int &rows, const int &cols)
+{
+    SpMat sp;
+    sp.resize(rows, cols);
+    return sp;
+}
+
+template <class T>
+SpMat Optimizer<T>::sp_inv(const SpMat &sp, const int &n)
+{
+    SpSolver solver;
+    solver.compute(sp);
+    if (solver.info() != Eigen::Success)
+    {
+        std::cout << "fail to compute the sparse matrix" << std::endl;
+    }
+    SpMat I(n, n);
+    I.setIdentity();
+    SpMat sp_inv = solver.solve(I);
+    if (solver.info() != Eigen::Success)
+    {
+        std::cout << "fail to compute the sparse matrix" << std::endl;
+    }
+    return sp_inv;
+}
+
+template <class T>
 void Optimizer<T>::optimize()
 {
-    int c_num = corners->editions.size();
-    Eigen::MatrixXf g = Eigen::MatrixXf::Zero(1, c_num);
-    Eigen::MatrixXf e = Eigen::MatrixXf::Zero(1, c_num);
+    int n = corners->editions.size();
+    SpMat g = create_sp_mat(n, 1);
     int cnt = 0;
     for (auto &item : corners->editions)
     {
         points.push_back(item.first);
-        g(0, cnt) = item.second.g;
+        Float gi = item.second.g;
+        if (gi > Utils::EPS)
+        {
+            g.insert(cnt, 0) = gi;
+        }
         cnt++;
     }
 
     sampling();
-    int n = c_num, m = samples.size();
-    printf("n: %d, m: %d\n", n, m);
-    Eigen::MatrixXf u = Eigen::MatrixXf::Zero(n, m);
-    Eigen::MatrixXf a = Eigen::MatrixXf::Zero(m, m);
 
-    for (int k = 0; k < m; k++)
+    int m = samples.size();
+
+    DsMat u = Eigen::MatrixXf::Zero(n, m);
+    DsMat a = Eigen::MatrixXf::Zero(m, m);
+
+    for (int i = 0; i < m; i++)
     {
-        T &t = points[samples[k]];
-        for (int i = 0; i < n; i++)
+        T &pi = points[i];
+        for (int j = 0; j < n; j++)
         {
-            u(i, k) = t.affinity(points[i]);
-            if (i < m)
+            Float z = pi.affinity(points[j]);
+            u(j, i) = z;
+            if (j < m)
             {
-                a(i, k) = u(i, k);
+                a(j, i) = z;
             }
         }
     }
-    Eigen::MatrixXf u_trans = u.transpose();
-    Eigen::MatrixXf a_inv = a.inverse();
-    Eigen::MatrixXf id = Eigen::MatrixXf::Ones(n, 1);
-    Eigen::MatrixXf d = ((0.5 / Utils::lambda) * Utils::w + 1) * (u * (a_inv * (u_trans * id)));
-    Eigen::MatrixXf d_inv = id; 
-    for(int i = 0; i < n; i ++) {
-        d_inv(i, 0) = 1.0 / d(i, 0);
-    }
-    auto D = d.asDiagonal();
-    auto D_inv_diag = d_inv.asDiagonal();
-    // auto D_inv = D_inv_diag.toDenseMatrix();
 
-    Eigen::MatrixXf mid = ((-1)*a + u_trans * (D_inv_diag * u)).inverse();
-    auto res = (D_inv_diag * (u * (mid * (u_trans * D_inv_diag)))).asDiagonal();
-    
-    // FIXME: Cannot add.
-    // e = (0.5 / Utils::lambda) *
-    //     (D_inv_diag - res * (u * (a_inv * u_trans)) * Utils::w * g;
-
-    for (int i = 0; i < c_num; i++)
+    DsMat u_trans = u.transpose();
+    DsMat a_inv = a.inverse();
+    DsMat in = Eigen::MatrixXf::Ones(n, 1);
+    DsMat d = ((0.5 * Utils::w / Utils::lambda) + 1) * u * (a_inv * (u_trans * in));
+    SpMat D = create_sp_mat(n, n);
+    SpMat D_inv = create_sp_mat(n, n);
+    for (int i = 0; i < n; i++)
     {
-        float &ei = e(0, i);
-        T &point = points[i];
-        corners->set_e(point, ei);
+        D.insert(i, i) = d(i, 0);
+        D_inv.insert(i, i) = (1.0) / d(i, 0);
     }
+    SpMat su = u.sparseView();
+    DsMat uau_t_g = Utils::w * (su * (a_inv * (u_trans * g)));
+    std::cout << uau_t_g << std::endl;
+    DsMat mid_term = ((-1) * a + u_trans * (D_inv * su)).inverse();
+    DsMat first_term = D_inv * uau_t_g;
+    DsMat last_term = D_inv * (su * (mid_term * (u_trans * (D_inv * uau_t_g))));
+    DsMat e_res = (0.5 / Utils::lambda) * (first_term - last_term);
+    SpMat test = e_res.sparseView();
+    std::cout << "test" << std::endl;
 }
 
 template <class T>

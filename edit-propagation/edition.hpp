@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 11:00:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 13:35:38
+ * @LastEditTime : 2020-01-08 02:13:16
  * @Description: The class for edition. 
  */
 #ifndef EDIT_EDITION_HPP
@@ -12,13 +12,14 @@
 #include <string>
 #include "media_handler.hpp"
 #include "kdvalue.hpp"
+#include "utils.hpp"
 
 class Edition
 {
 protected:
     Image *image;
     ImageKD *center; // The center of the edition
-    double *coof;
+    Float *coof;
     int width, height;
 
 public:
@@ -27,8 +28,8 @@ public:
         // Single region edition now.
         image = new Image(img_path);
         width = image->width, height = image->height;
-        coof = new double[width * height];
-        double r = 0, g = 0, b = 0, w = 0, h = 0;
+        coof = new Float[width * height];
+        Float r = 0, g = 0, b = 0, w = 0, h = 0;
         int cnt = 0;
         for (int i = 0; i < width; i++)
         {
@@ -42,7 +43,7 @@ public:
                     coof[j * width + i] = 0;
                     continue;
                 }
-                coof[j * width + i] = ((double)_r / 255.0 + (double)_g / 255.0 + (double)_b / 255.0) / 3.0;
+                coof[j * width + i] = ((Float)_r / 255.0 + (Float)_g / 255.0 + (Float)_b / 255.0) / 3.0;
                 cnt++;
                 r += _r;
                 g += _g;
@@ -59,9 +60,9 @@ public:
         delete center;
         delete coof;
     }
-    double distance(const ImageKD &pixel) const
+    Float distance(const ImageKD &pixel) const
     {
-        double dist = 0;
+        Float dist = 0;
         dist += pow(center->r - pixel.r, 2);
         dist += pow(center->g - pixel.g, 2);
         dist += pow(center->b - pixel.b, 2);
@@ -71,7 +72,7 @@ public:
         // std::cout << "distance of: " << pixel << " | " << dist << std::endl;
         return dist;
     }
-    double get_coof(int w, int h) const
+    Float get_coof(int w, int h) const
     {
         if(w < 0 || w >= width || h < 0 || h >= height) {
             return 0.0;

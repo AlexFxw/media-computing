@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 05:45:20
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-05 13:37:47
+ * @LastEditTime : 2020-01-08 15:31:44
  * @Description: Handling the photos and video.
  */
 #ifndef EDIT_MEDIA_HANDLER_HPP

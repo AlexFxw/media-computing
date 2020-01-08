@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 06:28:28
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 13:44:41
+ * @LastEditTime : 2020-01-08 12:01:55
  * @Description: Implement of KD Tree 
  */
 
@@ -128,8 +128,8 @@ private:
     int dimension;
     std::vector<T> data;
     int cur_pivot;
-    int threshold = 256;
-    double dist_threshold = 600;
+    int threshold = 900;
+    Float dist_threshold = 400;
     bool term_condition(int num, KDNode<T> *node, Edition &edit);
     void clear_vector(std::vector<T> &vt)
     {
@@ -171,7 +171,7 @@ KDTree<T> *KDTree<T>::CreateFromImage(Image &img, Edition &edit)
             int r = img.get_pixel(w, h, CHANNEL::R);
             int g = img.get_pixel(w, h, CHANNEL::G);
             int b = img.get_pixel(w, h, CHANNEL::B);
-            double e = edit.get_coof(w, h);
+            Float e = edit.get_coof(w, h);
             img_kdvalue.push_back(T(r, g, b, w, h, e));
         }
     }
@@ -243,7 +243,7 @@ bool KDTree<T>::term_condition(int num, KDNode<T> *node, Edition &edit)
     {
         return true;
     }
-    double distance = edit.distance(mid_point);
+    Float distance = edit.distance(mid_point);
     if (distance > this->dist_threshold)
     {
         return true;
@@ -271,12 +271,12 @@ void KDTree<T>::calc_corners(KDNode<T> *node, Corners<T> *corners)
         }
         for (auto &c : corners_nodes)
         {
-            double s = 0, g = 0;
+            Float s = 0, g = 0;
             for (auto &d : node->data)
             {
                 T opposite = Utils::get_opposite_corner<T>(c, node->lower_bound, node->upper_bound);
                 // std::cout << c << " " << opposite << " " << d << std::endl;
-                double si = Utils::multi_interpolate<T>(d, c, opposite);
+                Float si = Utils::multi_interpolate<T>(d, c, opposite);
                 s += si;
                 g += d.e * si;
             }

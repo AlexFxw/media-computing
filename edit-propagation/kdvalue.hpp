@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 05:51:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 14:12:02
+ * @LastEditTime : 2020-01-08 15:37:40
  * @Description: Define k-d value 
  */
 
@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <ostream>
 #include <cmath>
+#include "utils.hpp"
 
 enum KDIndex
 {
@@ -25,8 +26,8 @@ enum KDIndex
 class KDValue
 {
 public:
-    double e;
-    KDValue(double _e = 0.0) : e(_e) {}
+    Float e;
+    KDValue(Float _e = 0.0) : e(_e) {}
     virtual int get_value(const int &dim) const = 0;
     virtual void set_value(const int &dim, unsigned int value) = 0;
 };
@@ -40,7 +41,7 @@ public:
     uint8_t r, g, b;
     uint16_t w, h;
     ImageKD() : KDValue() {}
-    ImageKD(uint8_t _r, uint8_t _g, uint8_t _b, uint16_t _w, uint16_t _h, double _e = 0.0) : KDValue(_e), r(_r), g(_g), b(_b), w(_w), h(_h) {}
+    ImageKD(uint8_t _r, uint8_t _g, uint8_t _b, uint16_t _w, uint16_t _h, Float _e = 0.0) : KDValue(_e), r(_r), g(_g), b(_b), w(_w), h(_h) {}
     ImageKD create_new(const int &pivot, const int &new_value) const
     {
         ImageKD new_kd = *this;
@@ -62,16 +63,17 @@ public:
     }
     ~ImageKD() {}
     static int dim() { return dimension; }
-    double affinity(const ImageKD& kd)
+    Float affinity(const ImageKD &kd)
     {
-        double dist = 0;
-        dist += pow(r - kd.r, 2);
-        dist += pow(g - kd.g, 2);
-        dist += pow(b - kd.b, 2);
-        dist += pow(w - kd.w, 2);
-        dist += pow(h - kd.h, 2);
-        dist = sqrt(dist);
-        return std::exp(-dist);
+        Float &&_r = (Float)(r - kd.r) / (Utils::theta_c*255.0);
+        Float &&_g = (Float)(g - kd.g) / (Utils::theta_c*255.0);
+        Float &&_b = (Float)(b - kd.b) / (Utils::theta_c*255.0);
+        Float &&_w = (Float)(w - kd.w) / (Float)(Utils::width * Utils::theta_p);
+        Float &&_h = (Float)(h - kd.h) / (Float)(Utils::height * Utils::theta_p);
+        Float color_dist = sqrt(_r * _r + _g * _g + _b * _b);
+        Float pos_dist = sqrt(_w * _w + _h * _h);
+        Float res = std::exp(-color_dist) * std::exp(-pos_dist);
+        return res;
     }
     int get_value(const int &dim) const
     {
@@ -116,13 +118,13 @@ public:
             return true;
         else if (unsigned(b) > c.get_value(KDIndex::b))
             return false;
-        else if(w < c.get_value(KDIndex::w))
+        else if (w < c.get_value(KDIndex::w))
             return true;
-        else if(w > c.get_value(KDIndex::w))
+        else if (w > c.get_value(KDIndex::w))
             return false;
-        else if(h < c.get_value(KDIndex::h))
+        else if (h < c.get_value(KDIndex::h))
             return true;
-        else if(h > c.get_value(KDIndex::h))
+        else if (h > c.get_value(KDIndex::h))
             return false;
         return false;
     }

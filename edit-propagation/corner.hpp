@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-07 06:22:02
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-07 16:21:17
+ * @LastEditTime : 2020-01-08 02:13:06
  * @Description: The definition of corner points
  */
 
@@ -11,13 +11,14 @@
 
 #include <map>
 #include <ostream>
+#include "utils.hpp"
 
 struct CornerInfo
 {
-    double e, g, u;
-    CornerInfo(double _e = 0, double _g = 0, double _u = 0) : e(_e), g(_g), u(_u) {}
+    Float e, g, u;
+    CornerInfo(Float _e = 0, Float _g = 0, Float _u = 0) : e(_e), g(_g), u(_u) {}
     CornerInfo operator+(const CornerInfo &v) { return CornerInfo(e + v.e, g + v.g, u + v.u); }
-    CornerInfo operator/(const double &d) { return CornerInfo(e / d, g / d, u / d); }
+    CornerInfo operator/(const Float &d) { return CornerInfo(e / d, g / d, u / d); }
     friend std::ostream &operator<<(std::ostream &out, const CornerInfo &c)
     {
         out << "Corner info: "
@@ -35,7 +36,7 @@ public:
     std::map<T, CornerInfo> editions;
     void set_corner(const T &corner, const CornerInfo &value = CornerInfo());
     int add_corner(const T &corner, const CornerInfo &value);
-    void set_e(const T &corner, float &_e) { editions[corner].e = _e; }
+    void set_e(const T &corner, Float &_e) { editions[corner].e = _e; }
     CornerInfo get_value(const T &corner);
 };
 
