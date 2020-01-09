@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-20 19:22:19
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 17:56:58
+ * @LastEditTime : 2020-01-09 04:33:44
  * @Description: main function for edit propagation.
  */
 
@@ -35,7 +35,7 @@ void apply_edition_img(Image *img, const KDTree<ImageKD> *kdtree, Edition &editi
     }
 }
 
-int main(int argc, const char **argv)
+void image_demo()
 {
     Image img("./img/edit-propagation/src_1.jpg");
     Edition edition("./img/edit-propagation/edit_1.jpg");
@@ -64,5 +64,35 @@ int main(int argc, const char **argv)
     apply_edition_img(res_img, kdtree, edition);
     res_img->save("./img/edit-propagation/res_1.jpg");
     std::cout << "Finish!" << std::endl;
+}
+
+void save_video_frame()
+{
+    std::string video_name("./img/edit-propagation/candle.mp4");
+    Video video;
+    video.save_frame(video_name, "./img/edit-propagation/candle_frame1.jpg", 1);
+}
+
+void video_demo()
+{
+    int edit_frame = 1;
+    Utils::edit_frame = edit_frame;
+    Image src_frame("./img/edit-propagation/candle_frame1.jpg");
+    Edition edition("./img/edit-propagation/candle_edit1.jpg");
+    std::string video_name("./img/edit-propagation/candle.mp4");
+    std::vector<VideoKD> kdvec = edition.get_videokd(video_name, edit_frame);
+    // std::cout << sizeof(kdvec) << std::endl;
+    // std::cout << kdvec.size() << std::endl;
+    KDTree<VideoKD> *kdtree = new KDTree<VideoKD>();
+    VideoKD lower(0, 0, 0, 0, 0, 0);
+    VideoKD upper(255, 255, 255, Utils::width, Utils::height, Utils::video_length);
+    kdtree->build(lower, upper, edition, kdvec);
+}
+
+int main(int argc, const char **argv)
+{
+    image_demo();
+    // save_video_frame();
+    // video_demo();
     return 0;
 }

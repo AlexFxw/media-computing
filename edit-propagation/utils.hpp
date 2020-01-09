@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 07:25:57
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 02:19:50
+ * @LastEditTime : 2020-01-09 04:26:31
  * @Description: file content
  */
 
@@ -35,7 +35,10 @@ public:
     static Float EPS;
     static Float theta_c;
     static Float theta_p;
+    static Float theta_time;
     static int width, height;
+    static int video_length;
+    static int edit_frame;
 };
 
 Float Utils::w = 0.2;
@@ -43,8 +46,11 @@ Float Utils::lambda = 0.7;
 Float Utils::EPS = 1e-3F;
 Float Utils::theta_c = 1.0;
 Float Utils::theta_p = 1.0;
+Float Utils::theta_time = 1.0;
 int Utils::width = 0;
 int Utils::height = 0;
+int Utils::video_length = 1;
+int Utils::edit_frame = 1;
 
 template <class T>
 Float Utils::multi_interpolate(const T &point, const T &target, const T &opposite)

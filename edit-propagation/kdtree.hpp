@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 06:28:28
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 02:11:21
+ * @LastEditTime : 2020-01-09 04:31:58
  * @Description: Implement of KD Tree 
  */
 
@@ -159,7 +159,7 @@ public:
         if (root != NULL)
             delete root;
     }
-    KDNode<T> *create_node(Edition &edit, int pivot, T lower, T upper, std::vector<T> kdvalues);
+    KDNode<T> *create_node(Edition &edit, int pivot, T lower, T upper, std::vector<T> &kdvalues);
     int build(T &lower, T &upper, Edition &edit, std::vector<T> &data);
     // TODO: Calc corner value
     void calc_corners(KDNode<T> *node, Corners<T> *corners);
@@ -174,7 +174,7 @@ KDTree<T>::KDTree() : root(NULL), dimension(T::dim()), cur_pivot(0)
 }
 
 template <class T>
-KDNode<T> *KDTree<T>::create_node(Edition &edit, int pivot, T lower, T upper, std::vector<T> kdvalues)
+KDNode<T> *KDTree<T>::create_node(Edition &edit, int pivot, T lower, T upper, std::vector<T> &kdvalues)
 {
     KDNode<T> *node = new KDNode<T>(lower, upper, pivot);
     this->cur_pivot = pivot;
