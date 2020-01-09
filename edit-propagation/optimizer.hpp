@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-07 10:54:38
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 16:39:38
+ * @LastEditTime : 2020-01-09 02:17:38
  * @Description: The Optimizer class to solve 
  */
 #ifndef EDIT_Optimizer_HPP
@@ -90,9 +90,18 @@ DsMat Optimizer<T>::optimize()
     DsMat u = Eigen::MatrixXf::Zero(n, m);
     DsMat a = Eigen::MatrixXf::Zero(m, m);
 
+    SpMat W = create_sp_mat(n, n);
+
+    for(int i = 0; i < n; i ++)
+    {
+        T &pi = points[i];
+        W.insert(i, i) = pi.weight;
+    }
+
     for (int i = 0; i < m; i++)
     {
         T &pi = points[i];
+
         for (int j = 0; j < n; j++)
         {
             Float z = pi.affinity(points[j]);
@@ -107,7 +116,9 @@ DsMat Optimizer<T>::optimize()
     DsMat u_trans = u.transpose();
     DsMat a_inv = a.inverse();
     DsMat in = Eigen::MatrixXf::Ones(n, 1);
-    DsMat d = ((0.5 * Utils::w / Utils::lambda) + 1) * u * (a_inv * (u_trans * in));
+    // TODO: Add weight matrix
+    // DsMat d = ((0.5 * Utils::w / Utils::lambda) + 1) * u * (a_inv * (u_trans * in));
+    DsMat d = ((0.5/Utils::lambda) * (u * (a_inv * (u_trans * (W * in))))) + (u * (a_inv * (u_trans * in)));
     SpMat D = create_sp_mat(n, n);
     SpMat D_inv = create_sp_mat(n, n);
     for (int i = 0; i < n; i++)
@@ -116,7 +127,8 @@ DsMat Optimizer<T>::optimize()
         D_inv.insert(i, i) = (1.0) / d(i, 0);
     }
     SpMat su = u.sparseView();
-    DsMat uau_t_g = Utils::w * (su * (a_inv * (u_trans * g)));
+    // TODO: Add weight matrix
+    DsMat uau_t_g = Utils::w * (su * (a_inv * (u_trans * (W * g))));
     DsMat mid_term = ((-1) * a + u_trans * (D_inv * su)).inverse();
     DsMat first_term = D_inv * uau_t_g;
     DsMat last_term = D_inv * (su * (mid_term * (u_trans * (D_inv * uau_t_g))));

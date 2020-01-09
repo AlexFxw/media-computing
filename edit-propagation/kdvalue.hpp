@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 05:51:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 15:37:40
+ * @LastEditTime : 2020-01-09 02:07:54
  * @Description: Define k-d value 
  */
 
@@ -27,7 +27,8 @@ class KDValue
 {
 public:
     Float e;
-    KDValue(Float _e = 0.0) : e(_e) {}
+    Float weight;
+    KDValue(Float _e = 0.0, Float _weight = 0.0) : e(_e), weight(_weight) {}
     virtual int get_value(const int &dim) const = 0;
     virtual void set_value(const int &dim, unsigned int value) = 0;
 };
@@ -41,7 +42,7 @@ public:
     uint8_t r, g, b;
     uint16_t w, h;
     ImageKD() : KDValue() {}
-    ImageKD(uint8_t _r, uint8_t _g, uint8_t _b, uint16_t _w, uint16_t _h, Float _e = 0.0) : KDValue(_e), r(_r), g(_g), b(_b), w(_w), h(_h) {}
+    ImageKD(uint8_t _r, uint8_t _g, uint8_t _b, uint16_t _w, uint16_t _h, Float _e = 0.0, Float _weight = 0.0) : KDValue(_e, _weight), r(_r), g(_g), b(_b), w(_w), h(_h) {}
     ImageKD create_new(const int &pivot, const int &new_value) const
     {
         ImageKD new_kd = *this;
@@ -50,6 +51,7 @@ public:
     }
     ImageKD operator+(const ImageKD &kd)
     {
+        // TODO: Consider weight?
         return ImageKD(unsigned(r) + unsigned(kd.r), unsigned(g) + unsigned(kd.g), unsigned(b + kd.b), w + kd.w, h + kd.h);
     }
     ImageKD operator/(const int &n)
@@ -65,9 +67,9 @@ public:
     static int dim() { return dimension; }
     Float affinity(const ImageKD &kd)
     {
-        Float &&_r = (Float)(r - kd.r) / (Utils::theta_c*255.0);
-        Float &&_g = (Float)(g - kd.g) / (Utils::theta_c*255.0);
-        Float &&_b = (Float)(b - kd.b) / (Utils::theta_c*255.0);
+        Float &&_r = (Float)(r - kd.r) / (Utils::theta_c * 255.0);
+        Float &&_g = (Float)(g - kd.g) / (Utils::theta_c * 255.0);
+        Float &&_b = (Float)(b - kd.b) / (Utils::theta_c * 255.0);
         Float &&_w = (Float)(w - kd.w) / (Float)(Utils::width * Utils::theta_p);
         Float &&_h = (Float)(h - kd.h) / (Float)(Utils::height * Utils::theta_p);
         Float color_dist = sqrt(_r * _r + _g * _g + _b * _b);

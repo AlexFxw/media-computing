@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-07 06:22:02
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 02:13:06
+ * @LastEditTime : 2020-01-09 02:17:13
  * @Description: The definition of corner points
  */
 
@@ -15,14 +15,14 @@
 
 struct CornerInfo
 {
-    Float e, g, u;
-    CornerInfo(Float _e = 0, Float _g = 0, Float _u = 0) : e(_e), g(_g), u(_u) {}
-    CornerInfo operator+(const CornerInfo &v) { return CornerInfo(e + v.e, g + v.g, u + v.u); }
-    CornerInfo operator/(const Float &d) { return CornerInfo(e / d, g / d, u / d); }
+    Float e, g, u, weight;
+    CornerInfo(Float _e = 0, Float _g = 0, Float _u = 0, Float _w = 0) : e(_e), g(_g), u(_u), weight(_w) {}
+    CornerInfo operator+(const CornerInfo &v) { return CornerInfo(e + v.e, g + v.g, u + v.u, w + v.weight); }
+    CornerInfo operator/(const Float &d) { return CornerInfo(e / d, g / d, u / d, weight / d); }
     friend std::ostream &operator<<(std::ostream &out, const CornerInfo &c)
     {
         out << "Corner info: "
-            << "e- " << c.e << " g- " << c.g << " u- " << c.u;
+            << "e- " << c.e << " g- " << c.g << " u- " << c.u << " weight- " << c.weight;
         return out;
     }
 };

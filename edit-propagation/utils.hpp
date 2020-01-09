@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 07:25:57
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 16:52:58
+ * @LastEditTime : 2020-01-09 02:19:50
  * @Description: file content
  */
 
@@ -38,7 +38,7 @@ public:
     static int width, height;
 };
 
-Float Utils::w = 0.8;
+Float Utils::w = 0.2;
 Float Utils::lambda = 0.7;
 Float Utils::EPS = 1e-3F;
 Float Utils::theta_c = 1.0;

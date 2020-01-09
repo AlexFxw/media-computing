@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 06:28:28
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 18:08:02
+ * @LastEditTime : 2020-01-09 02:11:21
  * @Description: Implement of KD Tree 
  */
 
@@ -266,7 +266,7 @@ void KDTree<T>::calc_corners(KDNode<T> *node, Corners<T> *corners)
         }
         for (auto &c : corners_nodes)
         {
-            Float s = 0, g = 0;
+            Float s = 0, g = 0, w = 0;
             for (auto &d : node->data)
             {
                 T opposite = Utils::get_opposite_corner<T>(c, node->lower_bound, node->upper_bound);
@@ -274,10 +274,12 @@ void KDTree<T>::calc_corners(KDNode<T> *node, Corners<T> *corners)
                 Float si = Utils::multi_interpolate<T>(d, c, opposite);
                 s += si;
                 g += d.e * si;
+                w += d.weight * si;
             }
             // Because e is unknown before we calculate it.
             g = (s == 0) ? 0 : g / s;
-            corners->add_corner(c, CornerInfo(0.0, g, s));
+            w = (s == 0) ? 0 : w / s;
+            corners->add_corner(c, CornerInfo(0.0, g, s, w));
         }
     }
 }

@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 11:00:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-08 18:12:13
+ * @LastEditTime : 2020-01-09 02:20:26
  * @Description: The class for edition. 
  */
 #ifndef EDIT_EDITION_HPP
@@ -51,7 +51,7 @@ Edition::Edition(const std::string &img_path)
             }
             // TODO: Find a better mapping method.
             // coof[j * width + i] = ((Float)_r / 255.0 + (Float)_g / 255.0 + (Float)_b / 255.0) / 3.0;
-            coof[j * width + i] = 0.7;
+            coof[j * width + i] = 0.1;
             cnt++;
             r += _r;
             g += _g;
@@ -94,8 +94,8 @@ Float Edition::get_coof(int w, int h) const
 
 void Edition::transfer(const Float &cf, int r, int g, int b, int &new_r, int &new_g, int &new_b)
 {
-    new_g = std::min(255, (int)(g + cf * 512));
-    printf("\rg diffent: %f, %d, %d", cf, g, new_g);
+    new_g = std::min(255, (int)(g + cf * 64));
+    // printf("\rg diffent: %f, %d, %d", cf, g, new_g);
 }
 
 std::vector<ImageKD> Edition::get_imagekd(Image &img) const
@@ -109,7 +109,8 @@ std::vector<ImageKD> Edition::get_imagekd(Image &img) const
             int g = img.get_pixel(w, h, CHANNEL::G);
             int b = img.get_pixel(w, h, CHANNEL::B);
             Float e = this->get_coof(w, h);
-            img_kdvalue.push_back(ImageKD(r, g, b, w, h, e));
+            Float weight = e > Utils::EPS ? Utils::w : 0;
+            img_kdvalue.push_back(ImageKD(r, g, b, w, h, e, weight));
         }
     }
     return img_kdvalue;
