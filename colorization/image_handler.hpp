@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-19 11:02:27
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 16:43:17
+ * @LastEditTime : 2020-01-09 17:11:47
  * @Description: This header is used to deal with image files.
  */
 #ifndef COLORIZE_IMAGE_HANDLER
@@ -196,7 +196,7 @@ int LabImage::get_pixel(const int &w, const int &h, const CHANNEL &channel, uint
 {
     if (w < 0 || w >= _width || h < 0 || h >= _height)
     {
-        printf("Invalid w, h in getting pixel\n");
+        // printf("Invalid w, h in getting pixel\n");
         return 1;
     }
     value = _pixel_ptr[h * _width * _channels + w * _channels + (int)channel];

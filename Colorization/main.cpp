@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-19 11:29:55
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 16:42:57
+ * @LastEditTime : 2020-01-09 17:53:47
  * @Description: main function 
  */
 
@@ -67,8 +67,9 @@ void swatch_colorize(std::string &img_dir, int img_num)
 int main()
 {
     std::string img_dir = "./img/colorize/";
-    // transfer_to_gray(img_dir + "gray_3.jpg");
-    global_colorize(img_dir, 4);
-    swatch_colorize(img_dir, 2);
+    transfer_to_gray(img_dir + "gray_5.jpg");
+    global_colorize(img_dir, 5);
+    swatch_colorize(img_dir, 4);
+    swatch_colorize(img_dir, 5);
     return 0;
 }
