@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-19 11:29:55
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 17:53:47
+ * @LastEditTime : 2020-01-09 17:59:17
  * @Description: main function 
  */
 
@@ -38,7 +38,6 @@ void global_colorize(std::string &img_dir, int img_num)
 
 void swatch_colorize(std::string &img_dir, int img_num)
 {
-    // TODO:
     std::ifstream f;
     f.open("./img/colorize/swatch_" + std::to_string(img_num) + ".txt");
     int smin_w, smin_h, smax_w, smax_h;
@@ -67,7 +66,7 @@ void swatch_colorize(std::string &img_dir, int img_num)
 int main()
 {
     std::string img_dir = "./img/colorize/";
-    transfer_to_gray(img_dir + "gray_5.jpg");
+    // transfer_to_gray(img_dir + "gray_5.jpg");
     global_colorize(img_dir, 5);
     swatch_colorize(img_dir, 4);
     swatch_colorize(img_dir, 5);
