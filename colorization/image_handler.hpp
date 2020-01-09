@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-19 11:02:27
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 14:02:27
+ * @LastEditTime : 2020-01-09 16:43:17
  * @Description: This header is used to deal with image files.
  */
 #ifndef COLORIZE_IMAGE_HANDLER
@@ -41,6 +41,8 @@ public:
     LabImage(/* args */);
     ~LabImage();
     int load(const std::string &file_name);
+    int width() const { return _width; }
+    int height() const { return _height; }
     double mean(const CHANNEL &channel = L);
     double mean(const std::vector<std::pair<int, int>> &pixel_arr, const CHANNEL &channel);
     double mean(const int &min_w, const int &max_w, const int &min_h, const int &max_h, const CHANNEL &channel);
@@ -53,7 +55,7 @@ public:
     int get_pixel(const int &w, const int &h, const CHANNEL &channel, uint8_t &value) const;
     int set_pixel(const int &w, const int &h, const CHANNEL &channel, const uint8_t new_value);
     int jitter_sampling(const int &sample_num, std::vector<std::pair<int, int>> &res_arr, int min_w = 0, int max_w = 0, int min_h = 0, int max_h = 0) const;
-    int calc_neighbor(const int &w, const int &h, const int &size, double &mean_value, double &sig_value);
+    int calc_neighbor(const int &w, const int &h, const int &size, double &mean_value, double &sig_value, int min_w = 0, int max_w = 0, int min_h = 0, int max_h = 0);
     int transfer(LabImage &src_img, const std::vector<std::pair<int, int>> &res_arr, const int &size, const double &luminance_ratio, int min_w = 0, int max_w = 0, int min_h = 0, int max_h = 0);
 };
 
@@ -242,10 +244,11 @@ int LabImage::remap_histogram(LabImage &target, const CHANNEL &channel)
 int LabImage::remap_histogram(LabImage &target, Swatch &swatch, const CHANNEL &channel = L)
 {
     uint8_t pixel_val = 0;
-    double src_mean = this->mean(swatch.src_minw, swatch.src_maxh, swatch.src_minh, swatch.src_maxh, channel);
-    double target_mean = this->mean(swatch.target_minw, swatch.target_maxh, swatch.target_minh, swatch.target_maxh, channel);
-    double src_sig = this->sig(swatch.src_minw, swatch.src_maxh, swatch.src_minh, swatch.src_maxh, channel);
-    double target_sig = this->sig(swatch.target_minw, swatch.target_maxh, swatch.target_minh, swatch.target_maxh, channel);
+    // A little be weird because the definition of target is inversed here.
+    double src_mean = this->mean(swatch.target_minw, swatch.target_maxw, swatch.target_minh, swatch.target_maxh, channel);
+    double target_mean = target.mean(swatch.src_minw, swatch.src_maxw, swatch.src_minh, swatch.src_maxh, channel);
+    double src_sig = this->sig(swatch.target_minw, swatch.target_maxw, swatch.target_minh, swatch.target_maxh, channel);
+    double target_sig = target.sig(swatch.src_minw, swatch.src_maxw, swatch.src_minh, swatch.src_maxh, channel);
     double ratio = target_sig / src_sig;
     for (int h = swatch.target_minh; h < swatch.target_maxh; h++)
     {
@@ -265,9 +268,9 @@ int LabImage::remap_histogram(LabImage &target, Swatch &swatch, const CHANNEL &c
 
 int LabImage::jitter_sampling(const int &sample_num, std::vector<std::pair<int, int>> &res_arr, int min_w, int max_w, int min_h, int max_h) const
 {
-    if(max_h == 0)
+    if (max_h == 0)
         max_h = _height;
-    if(max_w == 0)
+    if (max_w == 0)
         max_w = _width;
     res_arr.clear();
     int n = sqrt(sample_num);
@@ -297,11 +300,16 @@ int LabImage::jitter_sampling(const int &sample_num, std::vector<std::pair<int, 
     return 0;
 }
 
-int LabImage::calc_neighbor(const int &w, const int &h, const int &size, double &mean_value, double &sig_value)
+int LabImage::calc_neighbor(const int &w, const int &h, const int &size, double &mean_value, double &sig_value, int min_w, int max_w, int min_h, int max_h)
 {
+    if (max_h == 0)
+        max_h = _height;
+    if (max_w == 0)
+        max_w = _width;
+
     int step = floor((double)size / 2.0);
-    int start_w = std::max(0, w - step), end_w = std::min(_width - 1, w + step);
-    int start_h = std::max(0, h - step), end_h = std::min(_height - 1, h + step);
+    int start_w = std::max(min_w, w - step), end_w = std::min(max_w - 1, w + step);
+    int start_h = std::max(min_h, h - step), end_h = std::min(max_h - 1, h + step);
     mean_value = this->mean(start_w, end_w, start_h, end_h);
     sig_value = this->sig(start_w, end_w, start_h, end_h);
     return 0;
@@ -309,9 +317,9 @@ int LabImage::calc_neighbor(const int &w, const int &h, const int &size, double 
 
 int LabImage::transfer(LabImage &src_img, const std::vector<std::pair<int, int>> &pixel_arr, const int &size, const double &luminance_ratio, int min_w, int max_w, int min_h, int max_h)
 {
-    if(max_h == 0)
+    if (max_h == 0)
         max_h = _height;
-    if(max_w == 0)
+    if (max_w == 0)
         max_w = _width;
 
     const double src_sig_val = src_img.sig(pixel_arr, L);
@@ -325,7 +333,7 @@ int LabImage::transfer(LabImage &src_img, const std::vector<std::pair<int, int>>
             double mean_val = 0, sig_val = 0;
             int best_w = 0, best_h = 0;
             double e = MAX_E;
-            if (this->get_pixel(w, h, L, pixel_val) || this->calc_neighbor(w, h, size, mean_val, sig_val))
+            if (this->get_pixel(w, h, L, pixel_val) || this->calc_neighbor(w, h, size, mean_val, sig_val, min_w, max_w, min_h, max_h))
             {
                 printf("Fail to transfer color.\n");
             }
@@ -342,12 +350,12 @@ int LabImage::transfer(LabImage &src_img, const std::vector<std::pair<int, int>>
                     best_h = src_h;
                 }
             }
-
             uint8_t a = 0, b = 0;
             if (src_img.get_pixel(best_w, best_h, A, a) || src_img.get_pixel(best_w, best_h, B, b))
             {
                 printf("Fail to get source image channel.\n");
             }
+            // printf("Best: %d %d\n", a, b);
             this->set_pixel(w, h, A, a);
             this->set_pixel(w, h, B, b);
         }

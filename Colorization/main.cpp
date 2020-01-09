@@ -2,10 +2,11 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-19 11:29:55
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 05:55:40
+ * @LastEditTime : 2020-01-09 16:42:57
  * @Description: main function 
  */
 
+#include <fstream>
 #include <opencv2/core/core.hpp>
 #include <opencv2/opencv.hpp>
 #include <cstdio>
@@ -35,9 +36,32 @@ void global_colorize(std::string &img_dir, int img_num)
     }
 }
 
-void swatch_colorize()
+void swatch_colorize(std::string &img_dir, int img_num)
 {
     // TODO:
+    std::ifstream f;
+    f.open("./img/colorize/swatch_" + std::to_string(img_num) + ".txt");
+    int smin_w, smin_h, smax_w, smax_h;
+    int tmin_w, tmin_h, tmax_w, tmax_h;
+    std::string target_name = img_dir + "gray_" + std::to_string(img_num) + ".jpg";
+    std::string src_name = img_dir + "color_" + std::to_string(img_num) + ".jpg";
+    std::string res_name = img_dir + "swatch_res_" + std::to_string(img_num) + ".jpg";
+    std::vector<Swatch> swatches;
+    while (!f.eof())
+    {
+        Swatch s;
+        f >> s.src_minw;
+        f >> s.src_minh;
+        f >> s.src_maxw;
+        f >> s.src_maxh;
+        f >> s.target_minw;
+        f >> s.target_minh;
+        f >> s.target_maxw;
+        f >> s.target_maxh;
+        swatches.push_back(s);
+    }
+    Transferer solver;
+    solver.colorize(src_name, target_name, res_name, swatches);
 }
 
 int main()
@@ -45,5 +69,6 @@ int main()
     std::string img_dir = "./img/colorize/";
     // transfer_to_gray(img_dir + "gray_3.jpg");
     global_colorize(img_dir, 4);
+    swatch_colorize(img_dir, 2);
     return 0;
 }
