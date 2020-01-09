@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 11:00:53
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 04:27:23
+ * @LastEditTime : 2020-01-09 07:19:14
  * @Description: The class for edition. 
  */
 #ifndef EDIT_EDITION_HPP
@@ -54,7 +54,7 @@ Edition::Edition(const std::string &img_path)
             }
             // TODO: Find a better mapping method.
             // coof[j * width + i] = ((Float)_r / 255.0 + (Float)_g / 255.0 + (Float)_b / 255.0) / 3.0;
-            coof[j * width + i] = 0.1;
+            coof[j * width + i] = Utils::init_e;
             cnt++;
             r += _r;
             g += _g;
@@ -109,8 +109,9 @@ Float Edition::get_coof(int w, int h) const
 
 void Edition::transfer(const Float &cf, int r, int g, int b, int &new_r, int &new_g, int &new_b)
 {
-    new_g = std::min(255, (int)(g + cf * 64));
-    // printf("\rg diffent: %f, %d, %d", cf, g, new_g);
+    // TODO: there may be a better mapping function?
+    new_g = std::min(255, g + (int)(cf * 64.0));
+    new_b = (int)((Float)b * cf);
 }
 
 std::vector<ImageKD> Edition::get_imagekd(Image &img) const

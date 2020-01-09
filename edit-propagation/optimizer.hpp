@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-07 10:54:38
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 02:17:38
+ * @LastEditTime : 2020-01-09 07:00:16
  * @Description: The Optimizer class to solve 
  */
 #ifndef EDIT_Optimizer_HPP

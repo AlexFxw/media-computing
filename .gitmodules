@@ -1,0 +1,3 @@
+[submodule "BBox-Label-Tool"]
+	path = BBox-Label-Tool
+	url = git@github.com:puzzledqs/BBox-Label-Tool.git

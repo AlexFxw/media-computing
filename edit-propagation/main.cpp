@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2019-12-20 19:22:19
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 04:33:44
+ * @LastEditTime : 2020-01-09 07:24:02
  * @Description: main function for edit propagation.
  */
 
@@ -35,10 +35,10 @@ void apply_edition_img(Image *img, const KDTree<ImageKD> *kdtree, Edition &editi
     }
 }
 
-void image_demo()
+void image_demo(std::string &img_dir, std::string img_index)
 {
-    Image img("./img/edit-propagation/src_1.jpg");
-    Edition edition("./img/edit-propagation/edit_1.jpg");
+    Image img(img_dir + "src_" + img_index + ".jpg");
+    Edition edition(img_dir + "edit_" + img_index + ".jpg");
     KDTree<ImageKD> *kdtree = new KDTree<ImageKD>();
     std::vector<ImageKD> kdvalues = edition.get_imagekd(img);
     ImageKD lower(0, 0, 0, 0, 0);
@@ -62,7 +62,7 @@ void image_demo()
     std::cout << "Applied edition to kd-tree." << std::endl;
     Image *res_img = new Image(Utils::width, Utils::height);
     apply_edition_img(res_img, kdtree, edition);
-    res_img->save("./img/edit-propagation/res_1.jpg");
+    res_img->save(img_dir + "res_" + img_index + ".jpg");
     std::cout << "Finish!" << std::endl;
 }
 
@@ -87,11 +87,32 @@ void video_demo()
     VideoKD lower(0, 0, 0, 0, 0, 0);
     VideoKD upper(255, 255, 255, Utils::width, Utils::height, Utils::video_length);
     kdtree->build(lower, upper, edition, kdvec);
+
+
+    std::cout << "Built the kd tree." << std::endl;
+    Corners<VideoKD> *corners = new Corners<VideoKD>();
+    kdtree->calc_corners(kdtree->root, corners);
+    std::cout << "Calculated the corner value!" << std::endl;
+    std::cout << "  - corners num: " << corners->editions.size() << std::endl;
+    Optimizer<VideoKD> *solver = new Optimizer<VideoKD>(corners);
+    DsMat res = solver->optimize();
+    solver->apply_edition(res);
+    std::cout << "Solved editions in corner points." << std::endl;
+    kdtree->adjust_T_junctions(kdtree->root, corners);
+    std::cout << "Adjusted the T junctions." << std::endl;
+    kdtree->apply_edition(kdtree->root, corners);
+    std::cout << "Applied edition to kd-tree." << std::endl;
+    // Image *res_img = new Image(Utils::width, Utils::height);
+    // apply_edition_img(res_img, kdtree, edition);
+    // res_img->save("./img/edit-propagation/res_1.jpg");
+    // std::cout << "Finish!" << std::endl;
 }
 
 int main(int argc, const char **argv)
 {
-    image_demo();
+    std::string img_dir("./img/edit-propagation/");
+    image_demo(img_dir, "1");
+    // image_demo(img_dir, "2");
     // save_video_frame();
     // video_demo();
     return 0;

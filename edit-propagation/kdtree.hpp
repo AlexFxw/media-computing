@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 06:28:28
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 04:31:58
+ * @LastEditTime : 2020-01-09 05:17:34
  * @Description: Implement of KD Tree 
  */
 
@@ -262,7 +262,9 @@ void KDTree<T>::calc_corners(KDNode<T> *node, Corners<T> *corners)
         for (auto &c : corners_nodes)
         {
             // Initialize the corner value.
-            corners->set_corner(c);
+            // FIXME: need to test
+            // corners->set_corner(c);
+            corners->init_corner(c);
         }
         for (auto &c : corners_nodes)
         {

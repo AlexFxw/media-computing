@@ -2,7 +2,7 @@
  * @Author: Fan Hsuan-Wei
  * @Date: 2020-01-04 07:25:57
  * @LastEditors  : Fan Hsuan-Wei
- * @LastEditTime : 2020-01-09 04:26:31
+ * @LastEditTime : 2020-01-09 06:59:08
  * @Description: file content
  */
 
@@ -39,6 +39,7 @@ public:
     static int width, height;
     static int video_length;
     static int edit_frame;
+    static Float init_e;
 };
 
 Float Utils::w = 0.2;
@@ -51,6 +52,7 @@ int Utils::width = 0;
 int Utils::height = 0;
 int Utils::video_length = 1;
 int Utils::edit_frame = 1;
+Float Utils::init_e = 0.1;
 
 template <class T>
 Float Utils::multi_interpolate(const T &point, const T &target, const T &opposite)
